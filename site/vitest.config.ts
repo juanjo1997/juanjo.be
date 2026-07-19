@@ -13,7 +13,7 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
-      include: ["src/**"],
+      include: ["src/**/*.{ts,tsx}"],
       exclude: ["src/**/*.test.{ts,tsx}"],
       // The CI gate: anything below 100% fails the build. Config files
       // (next.config.ts etc.) are declarative and excluded via `include`

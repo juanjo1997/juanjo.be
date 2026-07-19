@@ -15,9 +15,14 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "gray-matter": "^4.0.3",
     "next": "^16.2.10",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "rehype-stringify": "^10.0.1",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-rehype": "^11.1.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

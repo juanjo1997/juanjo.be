@@ -4,17 +4,41 @@ import Home from "./page";
 import { site } from "@/lib/site";
 
 describe("Home", () => {
-  it("renders name and description", () => {
+  it("renders name and lede", () => {
     render(<Home />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(site.name);
     expect(screen.getByText(site.description)).toBeInTheDocument();
   });
 
-  it("links to the public repository", () => {
+  it("links out to email, GitHub, and LinkedIn", () => {
     render(<Home />);
-    expect(screen.getByRole("link", { name: site.github })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "email" })).toHaveAttribute(
+      "href",
+      `mailto:${site.email}`,
+    );
+    expect(screen.getByRole("link", { name: "github" })).toHaveAttribute(
       "href",
       site.github,
+    );
+    expect(screen.getByRole("link", { name: "linkedin" })).toHaveAttribute(
+      "href",
+      site.linkedin,
+    );
+  });
+
+  it("links to every section of the site", () => {
+    render(<Home />);
+    expect(screen.getByRole("link", { name: "experience" })).toHaveAttribute(
+      "href",
+      "/experience",
+    );
+    expect(screen.getByRole("link", { name: "build on the side" })).toHaveAttribute(
+      "href",
+      "/projects",
+    );
+    expect(screen.getByRole("link", { name: "things I've written" })).toHaveAttribute(
+      "href",
+      "/writing",
     );
   });
 });

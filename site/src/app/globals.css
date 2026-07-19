@@ -1,13 +1,39 @@
-/* Minimal base — the real design system lands in Phase 2. */
+/*
+ * Design system. Full monospace, dark-first, one accent color.
+ * Hierarchy comes from spacing, weight, and color — not font size.
+ */
+
 :root {
-  --bg: #0d1117;
-  --fg: #e6edf3;
+  --bg: #0e1116;
+  --bg-raised: #151a21;
+  --fg: #d7dee6;
+  --muted: #8b96a1;
   --accent: #3fb950;
-  --font-mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --border: #232b34;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, "DejaVu Sans Mono",
+    monospace;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f7f4;
+    --bg-raised: #eeeee9;
+    --fg: #1f242b;
+    --muted: #5c6670;
+    --accent: #1a7f37;
+    --border: #d9d9d2;
+    color-scheme: light;
+  }
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
 }
 
 body {
@@ -15,15 +41,352 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-mono);
-  line-height: 1.6;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
 }
 
-main {
-  max-width: 42rem;
+.container {
+  max-width: 44rem;
   margin: 0 auto;
-  padding: 4rem 1.25rem;
+  padding: 0 1.25rem;
+}
+
+/* ---- header ---- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .container {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+}
+
+.brand {
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.brand .tilde {
+  color: var(--accent);
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  color: var(--accent);
+}
+
+/* ---- footer ---- */
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 5rem;
+}
+
+.site-footer .container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1.1rem;
+  padding-bottom: 2.5rem;
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+
+.site-footer a {
+  color: var(--muted);
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+}
+
+/* ---- main content ---- */
+
+main {
+  padding-top: 3.5rem;
+  padding-bottom: 2rem;
+}
+
+h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.75rem;
+}
+
+/* One flourish only: the block cursor after the home h1. */
+.cursor::after {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 0.18em;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1.2s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor::after {
+    animation: none;
+  }
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 2.75rem 0 1rem;
+}
+
+/* Section headings get a comment-style prefix — reads as code, not decoration. */
+h2::before {
+  content: "## ";
+  color: var(--accent);
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.5rem;
+}
+
+p {
+  margin: 0 0 1rem;
 }
 
 a {
   color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+ul {
+  margin: 0 0 1rem;
+  padding-left: 1.4rem;
+}
+
+li {
+  margin-bottom: 0.4rem;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.lede {
+  color: var(--muted);
+  margin-bottom: 2.5rem;
+}
+
+/* ---- key/value facts block (home) ---- */
+
+.facts {
+  margin: 0 0 1rem;
+  border-left: 2px solid var(--border);
+  padding-left: 1.1rem;
+}
+
+.facts div {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.facts dt {
+  color: var(--muted);
+  min-width: 7.5rem;
+}
+
+.facts dt::after {
+  content: ":";
+}
+
+.facts dd {
+  margin: 0;
+}
+
+/* ---- experience entries ---- */
+
+.entry {
+  margin-bottom: 2.5rem;
+}
+
+.entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+}
+
+.entry-head h3 {
+  margin: 0;
+}
+
+.entry-meta {
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+
+.entry-role {
+  margin: 0.9rem 0 0.35rem;
+  font-weight: 700;
+}
+
+.entry-role .entry-meta {
+  font-weight: 400;
+}
+
+.entry ul {
+  margin-top: 0.35rem;
+}
+
+/* ---- project list ---- */
+
+.project {
+  margin-bottom: 2.25rem;
+}
+
+.project-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.project-head h3 {
+  margin: 0;
+}
+
+.tag {
+  color: var(--muted);
+  font-size: 0.87rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.05rem 0.45rem;
+}
+
+.project p {
+  margin: 0.5rem 0 0;
+}
+
+/* ---- writing index ---- */
+
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-list li {
+  display: flex;
+  gap: 1.25rem;
+  align-items: baseline;
+  margin-bottom: 0.9rem;
+}
+
+.post-list time {
+  color: var(--muted);
+  font-size: 0.87rem;
+  white-space: nowrap;
+}
+
+/* ---- article prose ---- */
+
+.post-header {
+  margin-bottom: 2.5rem;
+}
+
+.post-header h1 {
+  margin-bottom: 0.4rem;
+}
+
+.prose code {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.92em;
+}
+
+.prose pre {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.9rem 1.1rem;
+  overflow-x: auto;
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+
+.prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.87rem;
+}
+
+.prose blockquote {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--accent);
+  color: var(--muted);
+}
+
+.prose table {
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.7rem;
+  text-align: left;
+}
+
+.prose img {
+  max-width: 100%;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
 }
