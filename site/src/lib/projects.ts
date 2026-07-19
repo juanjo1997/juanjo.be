@@ -11,32 +11,32 @@ export const projects: Project[] = [
     name: "trading-engine",
     stack: "Python",
     description:
-      "Algorithmic trading engine for Kalshi 15-minute BTC binary markets with backtest, paper, and live modes and YAML-defined strategies. O(1)-per-tick incremental indicator engine (EMA, VWAP, RSI, ATR, Hurst, and friends) and a Streamlit dashboard for run analysis. The active strategy was validated with bootstrap confidence intervals before going live.",
+      "Trading engine for Kalshi BTC binary markets: backtest, paper, and live modes, YAML-defined strategies, O(1) incremental indicators.",
   },
   {
     name: "kalshi-poly-arb",
     stack: "Rust",
     description:
-      "Cross-exchange arbitrage bot for Kalshi and Polymarket 15-minute crypto markets. Streams normalized top-of-book from both venues, scores fee-aware complementary opportunities, and executes Polymarket-first with a persistent-hedge state machine per coin — partial-fill-aware retries, circuit breakers, and full telemetry to SQLite.",
+      "Cross-exchange arbitrage bot for Kalshi × Polymarket with fee-aware scoring and a persistent-hedge state machine per coin.",
   },
   {
     name: "openclaw",
     stack: "CloudFormation · Shell",
     description:
-      "One-command AWS deployment for a personal automation VM: a CloudFormation stack wiring EC2, Secrets Manager, and Tailscale so the instance joins a private tailnet and provisions itself on first boot.",
+      "One-command CloudFormation stack for a self-provisioning automation VM: EC2, Secrets Manager, and Tailscale.",
   },
   {
     name: "db-cost-allocator",
     stack: "Python",
     description:
-      "FinOps utility that allocates the cost of a shared database server across its tenant databases — turning one opaque line item into per-team accountability.",
+      "FinOps utility that splits a shared database server's cost across its tenant databases for per-team accountability.",
     url: "https://github.com/juanjo1997/db-cost-allocator",
   },
   {
     name: "juanjo.be",
     stack: "TypeScript · CloudFormation",
     description:
-      "This site. Next.js static export on private S3 behind CloudFront, raw CloudFormation, GitHub Actions with OIDC, PR preview environments, and a 100% test-coverage gate. Every decision is recorded as an ADR in the repo.",
+      "This site: static Next.js on S3 + CloudFront, raw CloudFormation, OIDC deploys, PR previews, 100% coverage gate, ADRs.",
     url: "https://github.com/juanjo1997/juanjo.be",
   },
 ];

@@ -13,17 +13,19 @@ export default function Projects() {
       <p className="lede">
         Things I build on my own time — mostly trading systems and infrastructure tooling.
       </p>
-      {projects.map((project) => (
-        <section className="project" key={project.name}>
-          <div className="project-head">
-            <h3>
-              {project.url ? <a href={project.url}>{project.name}</a> : project.name}
-            </h3>
-            <span className="tag">{project.stack}</span>
-          </div>
-          <p>{project.description}</p>
-        </section>
-      ))}
+      <div className="project-grid">
+        {projects.map((project) => (
+          <section className="project" key={project.name}>
+            <div className="project-head">
+              <h3>
+                {project.url ? <a href={project.url}>{project.name}</a> : project.name}
+              </h3>
+              <span className="tag">{project.stack}</span>
+            </div>
+            <p>{project.description}</p>
+          </section>
+        ))}
+      </div>
     </>
   );
 }

@@ -17,6 +17,13 @@ export default function Experience() {
               <h3>{job.company}</h3>
               <span className="entry-meta">{job.location}</span>
             </div>
+            <div className="entry-stack">
+              {job.stack.map((tool) => (
+                <span className="tag" key={tool}>
+                  {tool}
+                </span>
+              ))}
+            </div>
             {job.roles.map((role) => (
               <div key={role.title}>
                 <p className="entry-role">
@@ -24,7 +31,9 @@ export default function Experience() {
                 </p>
                 <ul>
                   {role.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
+                    <li key={bullet.label}>
+                      <strong>{bullet.label}</strong> — {bullet.text}
+                    </li>
                   ))}
                 </ul>
               </div>

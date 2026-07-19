@@ -4,13 +4,16 @@ import Experience, { metadata } from "./page";
 import { certifications, education, jobs } from "@/lib/experience";
 
 describe("Experience", () => {
-  it("renders every job with its roles and bullets", () => {
+  it("renders every job with its stack, roles, and bullets", () => {
     render(<Experience />);
     for (const job of jobs) {
       expect(screen.getByRole("heading", { name: job.company })).toBeInTheDocument();
+      for (const tool of job.stack) {
+        expect(screen.getAllByText(tool).length).toBeGreaterThan(0);
+      }
       for (const role of job.roles) {
         for (const bullet of role.bullets) {
-          expect(screen.getByText(bullet)).toBeInTheDocument();
+          expect(screen.getByText(bullet.label)).toBeInTheDocument();
         }
       }
     }

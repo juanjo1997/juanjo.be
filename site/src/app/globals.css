@@ -69,7 +69,7 @@ body {
 
 .container {
   width: 100%;
-  max-width: 48rem;
+  max-width: 60rem;
   margin: 0 auto;
   padding: 0 1.25rem;
 }
@@ -223,6 +223,10 @@ li {
   margin-bottom: 0.4rem;
 }
 
+li::marker {
+  color: var(--accent);
+}
+
 ::selection {
   background: var(--accent);
   color: var(--bg);
@@ -371,10 +375,26 @@ li {
   margin-top: 0.35rem;
 }
 
-/* ---- project list ---- */
+.entry-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+/* ---- project grid ---- */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+  gap: 1.1rem;
+}
 
 .project {
-  margin-bottom: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  margin: 0;
 }
 
 .project-head {
