@@ -1,0 +1,29 @@
+/* Minimal base — the real design system lands in Phase 2. */
+:root {
+  --bg: #0d1117;
+  --fg: #e6edf3;
+  --accent: #3fb950;
+  --font-mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 4rem 1.25rem;
+}
+
+a {
+  color: var(--accent);
+}
