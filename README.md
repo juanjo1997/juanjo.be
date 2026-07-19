@@ -1,6 +1,6 @@
 # juanjo.be
 
-Personal site of Juan Jose Beltran — software engineering, DevOps, cloud
+Personal site of Juanjo Beltran — software engineering, DevOps, cloud
 infrastructure, FinOps.
 
 This repo is deliberately over-engineered for a static site: it doubles as a working

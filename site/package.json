@@ -2,7 +2,7 @@
   "name": "juanjo.be",
   "version": "0.1.0",
   "private": true,
-  "description": "Personal site of Juan Jose Beltran — juanjo.be",
+  "description": "Personal site of Juanjo Beltran — juanjo.be",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,5 +1,5 @@
 export const site = {
-  name: "Juan Jose Beltran",
+  name: "Juanjo Beltran",
   nickname: "Juanjo",
   title: "Juanjo Beltran",
   description:
