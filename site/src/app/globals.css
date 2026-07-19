@@ -225,6 +225,36 @@ li {
   color: var(--muted);
 }
 
+/* ---- home hero ---- */
+
+.hero {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.portrait {
+  width: 13rem;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    flex-direction: column;
+  }
+
+  .portrait {
+    width: 11rem;
+  }
+}
+
 .lede {
   color: var(--muted);
   margin-bottom: 2.5rem;

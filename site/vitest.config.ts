@@ -1,9 +1,23 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, type Plugin } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
+// Next's bundler turns static image imports into { src, width, height }
+// objects (StaticImageData); mirror that shape so components using
+// next/image render the same way under test.
+const staticImageStub: Plugin = {
+  name: "static-image-stub",
+  enforce: "pre",
+  load(id) {
+    if (/\.(jpe?g|png|webp|avif|gif)$/.test(id)) {
+      const src = `/${path.basename(id)}`;
+      return `export default { src: ${JSON.stringify(src)}, width: 800, height: 751 };`;
+    }
+  },
+};
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [staticImageStub, react()],
   resolve: {
     alias: { "@": path.resolve(import.meta.dirname, "src") },
   },

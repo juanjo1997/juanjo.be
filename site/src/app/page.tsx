@@ -1,22 +1,35 @@
+import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { certifications } from "@/lib/experience";
+import portrait from "../../public/portrait.jpg";
 
 export default function Home() {
   return (
     <>
-      <h1 className="cursor">{site.name}</h1>
-      <p className="lede">{site.description}</p>
-      <p>
-        I&apos;m a senior software engineer at AuditBoard, where I run large-scale
-        Kubernetes migrations by day and hunt down every wasted cloud dollar the rest of
-        the time. Before that I did SRE and FinOps work at UJET and cloud governance at
-        World Fuel Services.
-      </p>
-      <p>
-        The through-line: infrastructure that is automated, observable, and honest about
-        what it costs.
-      </p>
+      <div className="hero">
+        <div className="hero-text">
+          <h1 className="cursor">{site.name}</h1>
+          <p className="lede">{site.description}</p>
+          <p>
+            I&apos;m a senior software engineer at AuditBoard, where I run large-scale
+            Kubernetes migrations by day and hunt down every wasted cloud dollar the
+            rest of the time. Before that I did SRE and FinOps work at UJET and cloud
+            governance at World Fuel Services.
+          </p>
+          <p>
+            The through-line: infrastructure that is automated, observable, and honest
+            about what it costs.
+          </p>
+        </div>
+        <Image
+          className="portrait"
+          src={portrait}
+          alt="Juan Beltran"
+          priority
+          unoptimized
+        />
+      </div>
       <dl className="facts">
         <div>
           <dt>currently</dt>

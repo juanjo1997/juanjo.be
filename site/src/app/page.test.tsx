@@ -10,6 +10,12 @@ describe("Home", () => {
     expect(screen.getByText(site.description)).toBeInTheDocument();
   });
 
+  it("shows the portrait", () => {
+    render(<Home />);
+    const portrait = screen.getByRole("img", { name: site.name });
+    expect(portrait).toHaveAttribute("src", expect.stringContaining("portrait"));
+  });
+
   it("links out to email, GitHub, and LinkedIn", () => {
     render(<Home />);
     expect(screen.getByRole("link", { name: "email" })).toHaveAttribute(
