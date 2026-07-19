@@ -32,8 +32,21 @@
   box-sizing: border-box;
 }
 
+/* Type scales with the viewport; the rem-based column widens along with it. */
 html {
   font-size: 15px;
+}
+
+@media (min-width: 1100px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1700px) {
+  html {
+    font-size: 19px;
+  }
 }
 
 body {
@@ -43,10 +56,15 @@ body {
   font-family: var(--font-mono);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  /* Fill the window: footer pins to the bottom even on short pages. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
 }
 
 .container {
-  max-width: 44rem;
+  width: 100%;
+  max-width: 48rem;
   margin: 0 auto;
   padding: 0 1.25rem;
 }
@@ -120,6 +138,7 @@ body {
 /* ---- main content ---- */
 
 main {
+  flex: 1;
   padding-top: 3.5rem;
   padding-bottom: 2rem;
 }
