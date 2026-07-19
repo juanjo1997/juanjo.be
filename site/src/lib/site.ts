@@ -1,7 +1,7 @@
 export const site = {
-  name: "Juanjo Beltran",
+  name: "Juan Beltran",
   nickname: "Juanjo",
-  title: "Juanjo Beltran",
+  title: "Juan Beltran",
   description:
     "Software engineer working across DevOps, cloud infrastructure, and FinOps.",
   url: "https://juanjo.be",
