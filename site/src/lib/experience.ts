@@ -18,7 +18,7 @@ export type Job = {
 
 export const jobs: Job[] = [
   {
-    company: "AuditBoard",
+    company: "Optro",
     location: "Remote (Miami, FL)",
     stack: ["Kubernetes", "AWS", "Azure", "ArgoCD", "Helm", "GitHub Actions"],
     roles: [

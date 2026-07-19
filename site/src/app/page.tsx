@@ -14,14 +14,14 @@ export default function Home() {
           <h1 className="cursor">{site.name}</h1>
           <p className="lede">{site.description}</p>
           <p>
-            I&apos;m a senior software engineer at AuditBoard, where I run large-scale
-            Kubernetes migrations by day and hunt down every wasted cloud dollar the rest
-            of the time. Before that I did SRE and FinOps work at UJET and cloud
-            governance at World Fuel Services.
+            I&apos;m a senior software engineer at Optro, where I manage multiple
+            large-scale Kubernetes fleets across AWS and Azure — and hunt down every
+            wasted cloud dollar along the way. Before that I did SRE and FinOps work at
+            UJET and cloud governance at World Fuel Services.
           </p>
           <p>
-            The through-line: infrastructure that is automated, observable, and honest
-            about what it costs.
+            The through-line: infrastructure that is automated, observable, resilient,
+            highly available — and honest about what it costs.
           </p>
         </div>
         <Image
@@ -37,7 +37,7 @@ export default function Home() {
         <dl className="facts">
           <div>
             <dt>currently</dt>
-            <dd>Senior Software Engineer II, DevOps/FinOps @ AuditBoard</dd>
+            <dd>Senior Software Engineer II, DevOps/FinOps @ Optro</dd>
           </div>
           <div>
             <dt>location</dt>
