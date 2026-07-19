@@ -10,6 +10,14 @@ describe("Home", () => {
     expect(screen.getByText(site.description)).toBeInTheDocument();
   });
 
+  it("lists recent writing", () => {
+    render(<Home />);
+    expect(screen.getByRole("heading", { name: /Recent writing/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "This site is overengineered on purpose" }),
+    ).toBeInTheDocument();
+  });
+
   it("shows the portrait", () => {
     render(<Home />);
     const portrait = screen.getByRole("img", { name: site.name });

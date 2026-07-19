@@ -10,26 +10,28 @@ export default function Experience() {
   return (
     <>
       <h1>Experience</h1>
-      {jobs.map((job) => (
-        <section className="entry" key={job.company}>
-          <div className="entry-head">
-            <h3>{job.company}</h3>
-            <span className="entry-meta">{job.location}</span>
-          </div>
-          {job.roles.map((role) => (
-            <div key={role.title}>
-              <p className="entry-role">
-                {role.title} <span className="entry-meta">· {role.period}</span>
-              </p>
-              <ul>
-                {role.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
-                ))}
-              </ul>
+      <div className="timeline">
+        {jobs.map((job) => (
+          <section className="entry" key={job.company}>
+            <div className="entry-head">
+              <h3>{job.company}</h3>
+              <span className="entry-meta">{job.location}</span>
             </div>
-          ))}
-        </section>
-      ))}
+            {job.roles.map((role) => (
+              <div key={role.title}>
+                <p className="entry-role">
+                  {role.title} <span className="entry-meta">· {role.period}</span>
+                </p>
+                <ul>
+                  {role.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </section>
+        ))}
+      </div>
       <h2>Education</h2>
       <p>
         {education.school} — {education.degree}. {education.minor}.
