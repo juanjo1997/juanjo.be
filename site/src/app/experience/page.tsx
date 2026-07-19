@@ -14,7 +14,7 @@ export default function Experience() {
         {jobs.map((job) => (
           <section className="entry" key={job.company}>
             <div className="entry-head">
-              <h3>{job.company}</h3>
+              <h2>{job.company}</h2>
               <span className="entry-meta">{job.location}</span>
             </div>
             <div className="entry-stack">

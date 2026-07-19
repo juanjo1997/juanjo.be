@@ -15,3 +15,5 @@ site/test-results/
 *.log
 .env*
 !.env.example
+site/.lighthouseci/
+site/.lighthouseci-report/

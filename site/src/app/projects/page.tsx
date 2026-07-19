@@ -17,9 +17,9 @@ export default function Projects() {
         {projects.map((project) => (
           <section className="project" key={project.name}>
             <div className="project-head">
-              <h3>
+              <h2>
                 {project.url ? <a href={project.url}>{project.name}</a> : project.name}
-              </h3>
+              </h2>
               <span className="tag">{project.stack}</span>
             </div>
             <p>{project.description}</p>

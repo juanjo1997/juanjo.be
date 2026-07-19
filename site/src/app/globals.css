@@ -353,8 +353,14 @@ li::marker {
   gap: 0 1.5rem;
 }
 
-.entry-head h3 {
+/* Company names are h2 for the document outline, but plain visually. */
+.entry-head h2 {
   margin: 0;
+  font-size: 1rem;
+}
+
+.entry-head h2::before {
+  content: none;
 }
 
 .entry-meta {
@@ -404,8 +410,13 @@ li::marker {
   flex-wrap: wrap;
 }
 
-.project-head h3 {
+.project-head h2 {
   margin: 0;
+  font-size: 1rem;
+}
+
+.project-head h2::before {
+  content: none;
 }
 
 .tag {
