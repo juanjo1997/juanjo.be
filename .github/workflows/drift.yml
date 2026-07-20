@@ -1,0 +1,46 @@
+name: drift-detection
+
+on:
+  schedule:
+    # Mondays 13:00 UTC — a failed run means a stack no longer matches
+    # its template and someone changed infrastructure outside GitOps.
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::221646756701:role/juanjo-be-gha-staging
+          aws-region: us-east-1
+      - name: Detect drift on every stack
+        run: |
+          set -euo pipefail
+          FAILED=0
+          for STACK in juanjo-be-bootstrap juanjo-be-dns-cert juanjo-be-site-staging juanjo-be-site-prod; do
+            ID=$(aws cloudformation detect-stack-drift --stack-name "$STACK" \
+              --query StackDriftDetectionId --output text)
+            while :; do
+              STATUS=$(aws cloudformation describe-stack-drift-detection-status \
+                --stack-drift-detection-id "$ID" --query DetectionStatus --output text)
+              [ "$STATUS" = "DETECTION_IN_PROGRESS" ] || break
+              sleep 5
+            done
+            DRIFT=$(aws cloudformation describe-stack-drift-detection-status \
+              --stack-drift-detection-id "$ID" --query StackDriftStatus --output text)
+            echo "$STACK: $DRIFT"
+            if [ "$DRIFT" != "IN_SYNC" ]; then
+              FAILED=1
+              aws cloudformation describe-stack-resource-drifts --stack-name "$STACK" \
+                --stack-resource-drift-status-filters MODIFIED DELETED \
+                --query 'StackResourceDrifts[].[LogicalResourceId,StackResourceDriftStatus]' \
+                --output text || true
+            fi
+          done
+          exit $FAILED

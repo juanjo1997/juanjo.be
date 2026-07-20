@@ -75,6 +75,16 @@ Resources:
                 Effect: Allow
                 Action: cloudformation:DescribeStacks
                 Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/juanjo-be-*/*
+              # Scheduled drift detection runs on main, so it assumes
+              # this role rather than the tag-scoped prod role.
+              - Sid: DriftDetection
+                Effect: Allow
+                Action:
+                  - cloudformation:DetectStackDrift
+                  - cloudformation:DetectStackResourceDrift
+                  - cloudformation:DescribeStackDriftDetectionStatus
+                  - cloudformation:DescribeStackResourceDrifts
+                Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/juanjo-be-*/*
 
   # Assumable only by workflows running on version tags (releases).
   # Deploys prod content and applies CloudFormation changes to the
