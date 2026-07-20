@@ -1,0 +1,65 @@
+name: deploy-prod
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ROLE_ARN: arn:aws:iam::221646756701:role/juanjo-be-gha-prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - name: Unit tests (never ship untested)
+        run: npm test
+        working-directory: site
+      - run: npm run build
+        working-directory: site
+        env:
+          NEXT_PUBLIC_GIT_SHA: ${{ github.sha }}
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      # GitOps: releases also apply any infra changes to the site stacks,
+      # staging first as a canary, then prod.
+      - name: Apply site stacks
+        run: |
+          set -euo pipefail
+          ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name juanjo.be \
+            --query 'HostedZones[0].Id' --output text | cut -d/ -f3)
+          CERT_ARN=$(aws cloudformation describe-stacks --stack-name juanjo-be-dns-cert \
+            --query 'Stacks[0].Outputs[?OutputKey==`CertificateArn`].OutputValue' --output text)
+          for ENV in staging prod; do
+            if [ "$ENV" = "prod" ]; then DOMAIN=juanjo.be; WWW=true; else DOMAIN=staging.juanjo.be; WWW=false; fi
+            aws cloudformation deploy --region us-east-1 \
+              --stack-name juanjo-be-site-$ENV \
+              --template-file infra/site.yaml \
+              --parameter-overrides \
+                Environment=$ENV SiteDomain=$DOMAIN IncludeWww=$WWW \
+                HostedZoneId=$ZONE_ID CertificateArn=$CERT_ARN \
+                RouterFunctionCode="$(cat infra/functions/router.js)" \
+              --tags project=juanjo-be \
+              --no-fail-on-empty-changeset
+          done
+      - name: Sync prod bucket
+        run: aws s3 sync site/out s3://juanjo-be-prod/ --delete
+      - name: Invalidate
+        run: |
+          DIST_ID=$(aws cloudformation describe-stacks --stack-name juanjo-be-site-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' --output text)
+          aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"

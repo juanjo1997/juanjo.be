@@ -1,0 +1,46 @@
+name: deploy-staging
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ROLE_ARN: arn:aws:iam::221646756701:role/juanjo-be-gha-staging
+  BUCKET: juanjo-be-staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run build
+        working-directory: site
+        env:
+          NEXT_PUBLIC_GIT_SHA: ${{ github.sha }}
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Sync staging root (preserving PR previews)
+        run: >-
+          aws s3 sync site/out s3://${{ env.BUCKET }}/
+          --delete
+          --exclude "pr-*"
+          --exclude "pr-*/*"
+      - name: Invalidate
+        run: |
+          DIST_ID=$(aws cloudformation describe-stacks --stack-name juanjo-be-site-staging \
+            --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' --output text)
+          aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"
