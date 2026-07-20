@@ -18,7 +18,7 @@ export default function Projects() {
           <section className="project" key={project.name}>
             <div className="project-head">
               <h2>
-                {project.url ? <a href={project.url}>{project.name}</a> : project.name}
+                <a href={project.url}>{project.name}</a>
               </h2>
               <span className="tag">{project.stack}</span>
             </div>

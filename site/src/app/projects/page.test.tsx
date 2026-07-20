@@ -12,15 +12,14 @@ describe("Projects", () => {
     }
   });
 
-  it("links projects with public repos and not the private ones", () => {
+  it("links every project to its public repo", () => {
     render(<Projects />);
-    expect(screen.getByRole("link", { name: "db-cost-allocator" })).toHaveAttribute(
-      "href",
-      "https://github.com/juanjo1997/db-cost-allocator",
-    );
-    expect(
-      screen.queryByRole("link", { name: "trading-engine" }),
-    ).not.toBeInTheDocument();
+    for (const project of projects) {
+      expect(screen.getByRole("link", { name: project.name })).toHaveAttribute(
+        "href",
+        project.url,
+      );
+    }
   });
 
   it("has a page title", () => {
