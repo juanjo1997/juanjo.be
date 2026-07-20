@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  TLS certificate and DNS hygiene for juanjo.be. The hosted zone itself is
+  created by Route53 domain registration and passed in as a parameter (see
+  ADR-0006). Must be deployed in us-east-1: CloudFront only accepts
+  certificates from that region.
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: juanjo.be
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+
+Resources:
+  # Covers the apex and every subdomain (staging, www) with one cert.
+  # CloudFormation creates the DNS validation records automatically
+  # because DomainValidationOptions carries the zone id.
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Sub "*.${DomainName}"
+      ValidationMethod: DNS
+      # One entry only: the apex and the wildcard share an identical
+      # validation CNAME, and listing both makes CFN create it twice
+      # (InvalidChangeBatch).
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      KeyAlgorithm: EC_prime256v1
+
+  # Only Amazon's CA may issue certificates for this domain.
+  CaaRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub "${DomainName}."
+      Type: CAA
+      TTL: "3600"
+      ResourceRecords:
+        - '0 issue "amazon.com"'
+
+Outputs:
+  CertificateArn:
+    Value: !Ref Certificate
+    Export:
+      Name: juanjo-be-certificate-arn

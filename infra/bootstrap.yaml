@@ -1,0 +1,198 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  One-time bootstrap for juanjo.be CI/CD: GitHub OIDC identity provider,
+  scoped deploy roles for staging and production, and a tag-filtered cost
+  budget. Deployed manually from a workstation; everything else deploys
+  through GitHub Actions using the roles defined here.
+
+Parameters:
+  GitHubOwner:
+    Type: String
+    Default: juanjo1997
+  RepoName:
+    Type: String
+    Default: juanjo.be
+  BudgetEmail:
+    Type: String
+    Default: juanbelt1997@gmail.com
+
+Resources:
+  # Lets GitHub Actions authenticate with short-lived tokens; no AWS keys
+  # are ever stored in GitHub.
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fcd
+
+  # Assumable by workflows on main and by same-repo pull requests.
+  # Can only touch staging site content.
+  StagingDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: juanjo-be-gha-staging
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub:
+                  - !Sub repo:${GitHubOwner}/${RepoName}:ref:refs/heads/main
+                  - !Sub repo:${GitHubOwner}/${RepoName}:pull_request
+      Policies:
+        - PolicyName: staging-content-deploy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: StagingBucketRW
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - arn:aws:s3:::juanjo-be-staging
+                  - arn:aws:s3:::juanjo-be-staging/*
+              - Sid: Invalidate
+                Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                  - cloudfront:GetInvalidation
+                Resource: "*"
+              - Sid: ReadStackOutputs
+                Effect: Allow
+                Action: cloudformation:DescribeStacks
+                Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/juanjo-be-*/*
+
+  # Assumable only by workflows running on version tags (releases).
+  # Deploys prod content and applies CloudFormation changes to the
+  # juanjo-be-* stacks (GitOps: infra changes ship through the pipeline).
+  ProdDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: juanjo-be-gha-prod
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOwner}/${RepoName}:ref:refs/tags/*
+      Policies:
+        - PolicyName: prod-deploy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: SiteBucketsRW
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                  - s3:GetBucket*
+                  - s3:PutBucket*
+                  - s3:PutLifecycleConfiguration
+                  - s3:GetLifecycleConfiguration
+                  - s3:GetEncryptionConfiguration
+                  - s3:PutEncryptionConfiguration
+                  - s3:CreateBucket
+                Resource:
+                  - arn:aws:s3:::juanjo-be-*
+                  - arn:aws:s3:::juanjo-be-*/*
+              - Sid: StackManagement
+                Effect: Allow
+                Action:
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackEvents
+                  - cloudformation:GetTemplate
+                  - cloudformation:GetTemplateSummary
+                  - cloudformation:UpdateStack
+                  - cloudformation:DetectStackDrift
+                  - cloudformation:DetectStackResourceDrift
+                  - cloudformation:DescribeStackDriftDetectionStatus
+                  - cloudformation:DescribeStackResourceDrifts
+                Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/juanjo-be-*/*
+              # CloudFront and Route53 write actions cannot be usefully
+              # resource-scoped for stack updates in a single-owner
+              # account; accepted trade-off, revisit if the account is
+              # ever shared.
+              - Sid: CloudFront
+                Effect: Allow
+                Action:
+                  - cloudfront:*
+                Resource: "*"
+              - Sid: DNS
+                Effect: Allow
+                Action:
+                  - route53:GetHostedZone
+                  - route53:ListHostedZones
+                  - route53:ChangeResourceRecordSets
+                  - route53:GetChange
+                  - route53:ListResourceRecordSets
+                Resource: "*"
+              - Sid: CertRead
+                Effect: Allow
+                Action:
+                  - acm:DescribeCertificate
+                  - acm:ListCertificates
+                Resource: "*"
+
+  # Fires on this project's tagged resources only (activate the
+  # `project` cost-allocation tag in Billing once; see infra/README).
+  ProjectBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: juanjo-be-monthly
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: 5
+          Unit: USD
+        CostFilters:
+          TagKeyValue:
+            - user:project$juanjo-be
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+
+Outputs:
+  StagingRoleArn:
+    Value: !GetAtt StagingDeployRole.Arn
+  ProdRoleArn:
+    Value: !GetAtt ProdDeployRole.Arn
