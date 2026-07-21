@@ -262,11 +262,12 @@ li::marker {
     gap: 1.5rem;
   }
 
-  /* Full-width so the photo reads as a deliberate element instead of a
-     small box orphaned in the left margin. */
+  /* Centered and moderately sized: a deliberate portrait that doesn't
+     dominate, with clear space before the terminal block below it. */
   .portrait {
     width: 100%;
-    margin-top: 0;
+    max-width: 16rem;
+    margin: 0 auto 1.5rem;
   }
 }
 
