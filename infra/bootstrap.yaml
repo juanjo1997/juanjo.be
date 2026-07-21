@@ -6,12 +6,14 @@ Description: >-
   through GitHub Actions using the roles defined here.
 
 Parameters:
-  GitHubOwner:
+  # GitHub now embeds immutable numeric owner/repo IDs in the OIDC subject
+  # claim, e.g. repo:juanjo1997@54566714/juanjo.be@1306046786. These IDs
+  # never change on rename, so matching them is more durable than the
+  # string names. Read the live value from:
+  #   gh api repos/OWNER/REPO/actions/oidc/customization/sub
+  RepoSubjectPrefix:
     Type: String
-    Default: juanjo1997
-  RepoName:
-    Type: String
-    Default: juanjo.be
+    Default: repo:juanjo1997@54566714/juanjo.be@1306046786
   BudgetEmail:
     Type: String
     Default: juanbelt1997@gmail.com
@@ -47,10 +49,9 @@ Resources:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
-                # TEMP wildcard (still repo-scoped) while diagnosing OIDC
-                # assume-role denial; tighten back to main + pull_request.
                 token.actions.githubusercontent.com:sub:
-                  - !Sub repo:${GitHubOwner}/${RepoName}:*
+                  - !Sub ${RepoSubjectPrefix}:ref:refs/heads/main
+                  - !Sub ${RepoSubjectPrefix}:pull_request
       Policies:
         - PolicyName: staging-content-deploy
           PolicyDocument:
@@ -106,7 +107,7 @@ Resources:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
-                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOwner}/${RepoName}:ref:refs/tags/*
+                token.actions.githubusercontent.com:sub: !Sub ${RepoSubjectPrefix}:ref:refs/tags/*
       Policies:
         - PolicyName: prod-deploy
           PolicyDocument:
