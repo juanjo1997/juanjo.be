@@ -47,9 +47,10 @@ Resources:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
+                # TEMP wildcard (still repo-scoped) while diagnosing OIDC
+                # assume-role denial; tighten back to main + pull_request.
                 token.actions.githubusercontent.com:sub:
-                  - !Sub repo:${GitHubOwner}/${RepoName}:ref:refs/heads/main
-                  - !Sub repo:${GitHubOwner}/${RepoName}:pull_request
+                  - !Sub repo:${GitHubOwner}/${RepoName}:*
       Policies:
         - PolicyName: staging-content-deploy
           PolicyDocument:
