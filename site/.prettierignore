@@ -3,3 +3,10 @@ out/
 coverage/
 next-env.d.ts
 package-lock.json
+
+# generated test + lighthouse artifacts (gitignored; absent in CI checkout)
+test-results/
+playwright-report/
+.lighthouseci/
+.lighthouseci-report/
+e2e/visual.spec.ts-snapshots/
