@@ -77,17 +77,43 @@ Resources:
                 Effect: Allow
                 Action: cloudformation:DescribeStacks
                 Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/juanjo-be-*/*
-              # Scheduled drift detection runs on main, so it assumes this
-              # role rather than the tag-scoped prod role. These actions key
-              # off a detection-id, not a stack ARN, so they cannot be
-              # resource-scoped; they are read-only.
-              - Sid: DriftDetection
-                Effect: Allow
+
+  # Dedicated read-only role for scheduled drift detection. Drift detection
+  # reads every resource's live config through the CALLER's credentials to
+  # compare against the template, so it needs broad read access — the
+  # locked-down deploy roles can't (e.g. read S3 bucket config), which
+  # surfaces as false "drift". Read-only is the correct least privilege for
+  # an audit function: it can inspect everything, change nothing.
+  DriftRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: juanjo-be-gha-drift
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub ${RepoSubjectPrefix}:ref:refs/heads/main
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      Policies:
+        - PolicyName: drift-detection
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Detection actions key off a detection-id, not a stack ARN,
+              # so they cannot be resource-scoped.
+              - Effect: Allow
                 Action:
                   - cloudformation:DetectStackDrift
                   - cloudformation:DetectStackResourceDrift
-                  - cloudformation:DescribeStackDriftDetectionStatus
-                  - cloudformation:DescribeStackResourceDrifts
                 Resource: "*"
 
   # Assumable only by workflows running on version tags (releases).
@@ -207,3 +233,5 @@ Outputs:
     Value: !GetAtt StagingDeployRole.Arn
   ProdRoleArn:
     Value: !GetAtt ProdDeployRole.Arn
+  DriftRoleArn:
+    Value: !GetAtt DriftRole.Arn
