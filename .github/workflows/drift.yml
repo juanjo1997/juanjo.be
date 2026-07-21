@@ -22,18 +22,32 @@ jobs:
       - name: Detect drift on every stack
         run: |
           set -euo pipefail
-          FAILED=0
-          for STACK in juanjo-be-bootstrap juanjo-be-dns-cert juanjo-be-site-staging juanjo-be-site-prod; do
-            ID=$(aws cloudformation detect-stack-drift --stack-name "$STACK" \
+
+          # Runs one detection cycle and prints the stack's drift status.
+          detect() {
+            local id status
+            id=$(aws cloudformation detect-stack-drift --stack-name "$1" \
               --query StackDriftDetectionId --output text)
             while :; do
-              STATUS=$(aws cloudformation describe-stack-drift-detection-status \
-                --stack-drift-detection-id "$ID" --query DetectionStatus --output text)
-              [ "$STATUS" = "DETECTION_IN_PROGRESS" ] || break
+              status=$(aws cloudformation describe-stack-drift-detection-status \
+                --stack-drift-detection-id "$id" --query DetectionStatus --output text)
+              [ "$status" = "DETECTION_IN_PROGRESS" ] || break
               sleep 5
             done
-            DRIFT=$(aws cloudformation describe-stack-drift-detection-status \
-              --stack-drift-detection-id "$ID" --query StackDriftStatus --output text)
+            aws cloudformation describe-stack-drift-detection-status \
+              --stack-drift-detection-id "$id" --query StackDriftStatus --output text
+          }
+
+          FAILED=0
+          for STACK in juanjo-be-bootstrap juanjo-be-dns-cert juanjo-be-site-staging juanjo-be-site-prod; do
+            DRIFT=$(detect "$STACK")
+            # A CloudFront distribution mid-propagation briefly reads as
+            # drifted; re-check once after a pause so only persistent drift
+            # (a real out-of-band change) fails the run.
+            if [ "$DRIFT" != "IN_SYNC" ]; then
+              sleep 90
+              DRIFT=$(detect "$STACK")
+            fi
             echo "$STACK: $DRIFT"
             if [ "$DRIFT" != "IN_SYNC" ]; then
               FAILED=1
