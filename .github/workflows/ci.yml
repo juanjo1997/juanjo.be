@@ -33,6 +33,11 @@ jobs:
   e2e:
     name: playwright + axe + visual regression
     runs-on: ubuntu-latest
+    # Run inside the pinned Playwright image so font rendering is identical
+    # to where the visual baselines are generated (see infra note in
+    # e2e/visual.spec.ts). The bare ubuntu runner ships different system
+    # fonts and produces sub-pixel-different screenshots.
+    container: mcr.microsoft.com/playwright:v1.61.1-noble
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,7 +46,6 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npx playwright test
       - name: Upload report on failure
